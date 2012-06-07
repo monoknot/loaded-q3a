@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug|Win32">
+      <Configuration>debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="release|Win32">
+      <Configuration>release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\game\bg_items.c" />
+    <ClCompile Include="..\game\q_math.c" />
+    <ClCompile Include="..\game\q_shared.c" />
+    <ClCompile Include="ui_addbots.c" />
+    <ClCompile Include="ui_atoms.c" />
+    <ClCompile Include="ui_cdkey.c" />
+    <ClCompile Include="ui_cinematics.c" />
+    <ClCompile Include="ui_confirm.c" />
+    <ClCompile Include="ui_connect.c" />
+    <ClCompile Include="ui_controls2.c" />
+    <ClCompile Include="ui_credits.c" />
+    <ClCompile Include="ui_demo2.c" />
+    <ClCompile Include="ui_display.c" />
+    <ClCompile Include="ui_gameinfo.c" />
+    <ClCompile Include="ui_ingame.c" />
+    <ClCompile Include="ui_loadconfig.c" />
+    <ClCompile Include="ui_main.c" />
+    <ClCompile Include="ui_menu.c" />
+    <ClCompile Include="ui_mfield.c" />
+    <ClCompile Include="ui_mods.c" />
+    <ClCompile Include="ui_network.c" />
+    <ClCompile Include="ui_options.c" />
+    <ClCompile Include="ui_playermodel.c" />
+    <ClCompile Include="ui_players.c" />
+    <ClCompile Include="ui_playersettings.c" />
+    <ClCompile Include="ui_preferences.c" />
+    <ClCompile Include="ui_qmenu.c" />
+    <ClCompile Include="ui_removebots.c" />
+    <ClCompile Include="ui_saveconfig.c" />
+    <ClCompile Include="ui_serverinfo.c" />
+    <ClCompile Include="ui_servers2.c" />
+    <ClCompile Include="ui_setup.c" />
+    <ClCompile Include="ui_sound.c" />
+    <ClCompile Include="ui_sparena.c" />
+    <ClCompile Include="ui_specifyserver.c" />
+    <ClCompile Include="ui_splevel.c" />
+    <ClCompile Include="ui_sppostgame.c" />
+    <ClCompile Include="ui_spreset.c" />
+    <ClCompile Include="ui_spskill.c" />
+    <ClCompile Include="ui_startserver.c" />
+    <ClCompile Include="ui_syscalls.c" />
+    <ClCompile Include="ui_team.c" />
+    <ClCompile Include="ui_teamorders.c" />
+    <ClCompile Include="ui_video.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="keycodes.h" />
+    <ClInclude Include="ui_local.h" />
+    <ClInclude Include="ui_public.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ui.def" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{9DC70C09-7682-46AB-B647-9E17B451422E}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ui</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>Windows7.1SDK</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)\..\</OutDir>
+    <IntDir>$(SolutionDir)\builds\$(Configuration)\$(TargetName)\</IntDir>
+    <TargetName>$(ProjectName)$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)\builds\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\builds\$(Configuration)\$(TargetName)\</IntDir>
+    <TargetName>$(ProjectName)$(PlatformShortName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;UI_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <PrecompiledHeaderOutputFile>$(IntDir)/$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <ErrorReporting>None</ErrorReporting>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
+      <ManifestFile>$(IntDir)$(TargetFileName).intermediate.manifest</ManifestFile>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;UI_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <PrecompiledHeaderOutputFile>$(IntDir)/$(ProjectName).pch</PrecompiledHeaderOutputFile>
+      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
+      <ErrorReporting>None</ErrorReporting>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <OutputFile>$(TargetDir)$(TargetFileName)</OutputFile>
+      <ManifestFile>$(IntDir)$(TargetFileName).intermediate.manifest</ManifestFile>
+      <ProgramDatabaseFile>$(IntDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <MapFileName>$(IntDir)$(TargetName).map</MapFileName>
+      <ProfileGuidedDatabase>$(IntDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
+      <ImportLibrary>$(TargetDir)$(TargetName).lib</ImportLibrary>
+    </Link>
+    <ManifestResourceCompile>
+      <ResourceOutputFileName>$(IntDir)$(TargetFileName).embed.manifest.res</ResourceOutputFileName>
+    </ManifestResourceCompile>
+    <PostBuildEvent>
+      <Command>"$(ProjectDir)ui.bat"</Command>
+      <Message>Building QVM</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

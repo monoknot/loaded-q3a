@@ -1,0 +1,10 @@
+_backups/
+builds/
+
+# Excluded file names and types
+*.bpt
+*.caw
+*.gdb
+*.plg
+*.suo
+*.vcxproj.user

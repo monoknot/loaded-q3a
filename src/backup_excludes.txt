@@ -1,0 +1,10 @@
+_backups/
+builds/debug/
+builds/release/
+builds/vm/cgame/
+builds/vm/qagame/
+builds/vm/ui/
+*.bpt
+*.caw
+*.gdb
+*.suo

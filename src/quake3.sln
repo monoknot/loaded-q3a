@@ -1,0 +1,66 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "code\game\game.vcxproj", "{C8707652-5C41-1503-384E-7129C112658B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgame", "code\cgame\cgame.vcxproj", "{211DDBBB-7842-A7A4-AED8-09E71E0D91BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ui", "code\ui\ui.vcxproj", "{9DC70C09-7682-46AB-B647-9E17B451422E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		debug|Win32 = debug|Win32
+		release|Win32 = release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C8707652-5C41-1503-384E-7129C112658B}.debug|Win32.ActiveCfg = debug|Win32
+		{C8707652-5C41-1503-384E-7129C112658B}.debug|Win32.Build.0 = debug|Win32
+		{C8707652-5C41-1503-384E-7129C112658B}.release|Win32.ActiveCfg = release|Win32
+		{C8707652-5C41-1503-384E-7129C112658B}.release|Win32.Build.0 = release|Win32
+		{211DDBBB-7842-A7A4-AED8-09E71E0D91BF}.debug|Win32.ActiveCfg = debug|Win32
+		{211DDBBB-7842-A7A4-AED8-09E71E0D91BF}.debug|Win32.Build.0 = debug|Win32
+		{211DDBBB-7842-A7A4-AED8-09E71E0D91BF}.release|Win32.ActiveCfg = release|Win32
+		{211DDBBB-7842-A7A4-AED8-09E71E0D91BF}.release|Win32.Build.0 = release|Win32
+		{9DC70C09-7682-46AB-B647-9E17B451422E}.debug|Win32.ActiveCfg = debug|Win32
+		{9DC70C09-7682-46AB-B647-9E17B451422E}.debug|Win32.Build.0 = debug|Win32
+		{9DC70C09-7682-46AB-B647-9E17B451422E}.release|Win32.ActiveCfg = release|Win32
+		{9DC70C09-7682-46AB-B647-9E17B451422E}.release|Win32.Build.0 = release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(SourceCodeControl) = preSolution
+		SccNumberOfProjects = 8
+		SccProjectUniqueName0 = splines\\Splines.vcproj
+		SccProjectName0 = \u0022$/MissionPack/code/Splines\u0022,\u0020WJNAAAAA
+		SccLocalPath0 = splines
+		SccProvider0 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName1 = botlib\\botlib.vcproj
+		SccProjectName1 = \u0022$/MissionPack/code/botlib\u0022,\u0020HBAAAAAA
+		SccLocalPath1 = botlib
+		SccProvider1 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName2 = cgame\\cgame.vcproj
+		SccProjectName2 = \u0022$/MissionPack/code/cgame\u0022,\u0020NPAAAAAA
+		SccLocalPath2 = cgame
+		SccProvider2 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName3 = game\\game.vcproj
+		SccProjectName3 = \u0022$/MissionPack/code/game\u0022,\u0020CYAAAAAA
+		SccLocalPath3 = game
+		SccProvider3 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName4 = q3_ui\\q3_ui.vcproj
+		SccProjectName4 = \u0022$/MissionPack/code/q3_ui\u0022,\u0020VFLAAAAA
+		SccLocalPath4 = q3_ui
+		SccProvider4 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName5 = quake3.vcproj
+		SccProjectName5 = \u0022$/MissionPack/code\u0022,\u0020CAAAAAAA
+		SccLocalPath5 = .
+		SccProvider5 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName6 = renderer\\renderer.vcproj
+		SccProjectName6 = \u0022$/MissionPack/code/renderer\u0022,\u0020EJBAAAAA
+		SccLocalPath6 = renderer
+		SccProvider6 = MSSCCI:Perforce\u0020SCM
+		SccProjectUniqueName7 = ui\\ui.vcproj
+		SccProjectName7 = \u0022$/MissionPack/code/ui\u0022,\u0020AOBAAAAA
+		SccLocalPath7 = ui
+		SccProvider7 = MSSCCI:Perforce\u0020SCM
+	EndGlobalSection
+EndGlobal

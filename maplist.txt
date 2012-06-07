@@ -1,0 +1,72 @@
+/**
+ * Loaded Q3A
+ * http://www.kevin-fell.co.uk/
+ *
+ *
+ * This file describes the Loaded Q3A map list file format.
+ *
+ * Basic Rules
+ * -----------
+ * 1.	Standard C style single and multiline comments are supported.
+ * 2.	Each map entry should occupy one line only.
+ * 3.	White space characters should be used to separate arguments.
+ * 4.	Enclose single argument containing white space characters in
+ *		double quotes.
+ * 5.	Empty quotation marks can be used to skip arguments.
+ * 6.	The map must be available to the server. Invalid maps are
+ *		dropped from the list.
+ *
+ *
+ * Format
+ * ------
+ * <file> <title> <min> <max> <config>
+ *
+ *
+ * Parameters
+ * ----------
+ * <file>	[Required]	The map file minus the file extension (eg q3dm1).
+ * <title>	[Optional]	The map title (eg "Arena Gate").
+ * <min>	[Optional]	Defines the minimum desired number of clients
+ *						required in order to consider this entry in the
+ *						next map selection process.
+ * <max>	[Optional]	Defines the maximum desired number of clients
+ *						required in order to consider this entry in the
+ *						next map selection process.
+ * <config>	[Optional]	A configuration file to execute when switching
+ *						to this map. Its important to understand that
+ *
+ *
+ * Examples
+ * --------
+ * q3dm1	"Arena Gate (Rail Only)"		1	6	configs/rail-only.cfg
+ * q3dm2	"House of Pain (Rocket Only)"	1	6	configs/rocket-only.cfg
+ * q3dm3	"Arena Of Death"				1	8	configs/default.cfg
+ * q3dm4	"The Place Of Many Deaths"		1	8	configs/default.cfg
+ * q3dm5	"The Forgotten Place"			1	8	configs/default.cfg
+ */
+
+q3dm1		"Arena Gate"
+q3dm2		"House of Pain"
+q3dm3		"Arena Of Death"
+q3dm4		"The Place Of Many Deaths"
+q3dm5		"The Forgotten Place"
+q3dm6		"The Camping Grounds"
+q3dm7		"Temple of Retribution"
+q3dm8		"Brimstone Abbey"
+q3dm9		"Hero's Keep"
+q3dm10		"The Nameless Place"
+q3dm11		"Deva Station"
+q3dm12		"The Dredwerkz"
+q3dm13		"Lost World"
+q3dm14		"Grim Dungeons"
+q3dm15		"Demon Keep"
+q3dm16		"The Bouncy Map"
+q3dm17		"The Longest Yard"
+q3dm18		"Space Chamber"
+q3dm19		"Apocalypse Void"
+q3tourney1	"Powerstation 0218"
+q3tourney2	"The Proving Grounds"
+q3tourney3	"Hell's Gate"
+q3tourney4	"Vertical Vengeance"
+q3tourney5	"Fatal Instinct"
+q3tourney6	"The Very End Of You"
