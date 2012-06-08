@@ -19,7 +19,7 @@ The main additions are as follows:
 -	Stylish "Message of the Day" to communicate information to players.
 -	Sophisticated map rotation system which includes ideal head counts
 	and custom configuration files per map.
--	High scoring system to track the grates.
+-	High scoring system to record the best players to grace your server.
 -	Respawn protection shield to eradicate spawn spot opportunists.
 -	Anti-camp options to keep players on the move.
 -	Offhand grappling hook to reach the unreachable.
@@ -68,7 +68,7 @@ Setup
 
 Loaded Q3A is packed full of goodies, all of which can be individually
 configured and tuned to your taste. Please refer to
-"readme-config.txt" for a description of the additional functionality
+"readme-config.txt" for a description of the additional functionality.
 
 
 QVM vs DLL
