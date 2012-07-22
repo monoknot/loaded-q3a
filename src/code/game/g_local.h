@@ -42,9 +42,9 @@ typedef struct {
 // the "gameversion" client command will print this plus compile date
 /* LQ3A */
 #ifndef MISSIONPACK
-#define	GAMEVERSION	"loaded_q3a"
+#define	GAMEVERSION	"loaded"
 #else
-#define	GAMEVERSION	"loaded_q3a_ta"
+#define	GAMEVERSION	"loaded_ta"
 #endif /* !MISSIONPACK */
 
 #define BODY_QUEUE_SIZE		8
@@ -462,6 +462,7 @@ typedef struct {
 	lq3a_maplist_t			MapList;								/**< Current map rotation. */
 	lq3a_highscore_entry_t	HighScores[LQ3A_MAX_HIGHSCORE_ENTRIES];	/**< High score table for the current map. */
 	int						iHighScoreCount;						/**< Count of entries in the high score table. */
+	qboolean				bUpdateRegisteredItems;					/**< True when the server should communicate CS_ITEMS changes to all clients. */
 
 	/** LQ3A: Cached results from parsing the g_startItems cvar.
 		Its not practical to parse the value per spawn so we parse it at start up,
@@ -489,8 +490,9 @@ char *G_NewString( const char *string );
 void Cmd_Score_f (gentity_t *ent);
 void StopFollowing( gentity_t *ent );
 void BroadcastTeamChange( gclient_t *client, int oldTeam );
-void SetTeam( gentity_t *ent, char *s );
-/* LQ3A: Added eType variable. See LQ3A_FOLLOW_TYPE_* definitions for usage. */
+/* LQ3A: Added bBroadcast parameter to allow the calling function to suppress the change. */
+void SetTeam(gentity_t *ent, char *s, qboolean bBroadcast);
+/* LQ3A: Added eType parameter. See LQ3A_FOLLOW_TYPE_* definitions for usage. */
 void Cmd_FollowCycle_f(gentity_t *ent, int dir, lq3a_follow_type_t eType);
 
 //
@@ -594,6 +596,8 @@ gentity_t *fire_prox( gentity_t *self, vec3_t start, vec3_t aimdir );
 //
 void G_RunMover( gentity_t *ent );
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
+/* LQ3A */
+extern void SetMoverState(gentity_t *ent, moverState_t moverState, int time);
 
 //
 // g_trigger.c
@@ -709,6 +713,8 @@ void G_RunClient( gentity_t *ent );
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
 qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker );
+/* LQ3A */
+extern gentity_t *Team_ResetFlag(int team);
 
 //
 // g_mem.c

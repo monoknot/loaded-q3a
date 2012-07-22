@@ -429,7 +429,7 @@ static qboolean LQ3A_ParseInitialWeaponCvar(qboolean bUpdateRegisteredItems)
 		if (bUpdateRegisteredItems)
 		{
 			/* Ensure clients cache the changes. */
-			SaveRegisteredItems();
+			level.bUpdateRegisteredItems = qtrue;
 		}
 
 		return qtrue;
@@ -452,12 +452,13 @@ static void LQ3A_ParseStartItemsCvar(qboolean bUpdateRegisteredItems)
 	if (bUpdateRegisteredItems)
 	{
 		/* Ensure clients cache the changes. */
-		SaveRegisteredItems();
+		level.bUpdateRegisteredItems = qtrue;
 	}
 }
 
-/** Registers items which are part of the lq3a configuration. Follow up with a call to SaveRegisteredItems()
-		to ensure the CS_ITEMS configuration string is updated to reflect these changes. */
+/** Registers items which are part of the lq3a configuration. Follow up by setting
+	level.bUpdateRegisteredItems to qtrue to ensure changes made to the CS_ITEMS
+	are communicated to all clients. */
 void LQ3A_RegisterItems(void)
 {
 	uint i;
@@ -541,21 +542,22 @@ static qboolean LQ3A_UpdateSpawnItemsFromShortItem(plq3a_item_short_name_t pShor
 		pEntity->nextthink	= 0;
 		pEntity->think		= 0;
 
-		/* Spawn in the new item if we have one lined up. */
-		if (pShortItem->pSpawnShortItem)
+		/* Spawn in the new item if we have one lined up.
+			We don't need to bother if the map is restarting since LQ3A_ResetEntities() takes care of this for us. */
+		if (pShortItem->pSpawnShortItem && !level.restarted)
 		{
 			G_SpawnItem(pEntity, pShortItem->pSpawnShortItem->pItem);
 			FinishSpawningItem(pEntity);
 
 			/* Delay the respawn for a second,
 				this also overwrites the default delay time when spawning powerups. */
-			pEntity->nextthink = level.time + (1 * 1000);
+			pEntity->nextthink = level.time + 1000;
 			pEntity->think = RespawnItem;
 		}
 	}
 
 	/* Send the updated CS_ITEMS configuration string to clients. */
-	SaveRegisteredItems();
+	level.bUpdateRegisteredItems = qtrue;
 
 	return qtrue;
 }
@@ -574,7 +576,7 @@ static qboolean LQ3A_UpdateShortNameCvar(plq3a_item_short_name_t pShortItem, cva
 
 	if (uCount == 0)
 	{
-		trap_Cvar_Set(pCvar->cvarName, "");
+		trap_Cvar_Set(pCvar->cvarName, "null");
 		trap_Cvar_Update(pCvar->vmCvar);
 
 		/* Suppress change in G_UpdateCvars(). */
@@ -707,7 +709,7 @@ qboolean LQ3A_CvarChanged(cvarTable_t *pCvar)
 	}
 	else
 	{
-		/* Surpress the notification, changes will be applied on reload. */
+		/* Suppress the notification, changes will be applied on reload. */
 		return qfalse;
 	}
 
@@ -722,6 +724,7 @@ qboolean LQ3A_CvarChanged(cvarTable_t *pCvar)
 		if (g_hookOffhand.integer)
 		{
 			RegisterItem(BG_FindItemForWeapon(WP_GRAPPLING_HOOK));
+			SaveRegisteredItems();
 		}
 
 		return qfalse;
@@ -829,6 +832,205 @@ gitem_t *LQ3A_GetSpawnItem(gentity_t *pEntity, gitem_t *pItem)
 
 	/* Spawn the original item if there is no short name map for this item. */
 	return pItem;
+}
+
+/** Returns a client to their original state, as if they had just connected to the server. */
+static void LQ3A_ResetClient(gentity_t *pEntity)
+{
+	gclient_t	*pClient;
+	int			iTeam, iRank;
+
+	assert(pEntity && pEntity->client);
+
+	pClient = pEntity->client;
+
+	pClient->pers.enterTime = pClient->sess.spectatorTime = level.time;
+	pClient->pers.iScore = 0;
+	pClient->readyToExit = qfalse;
+
+	/* Reset persistent data. */
+	iTeam = pClient->ps.persistant[PERS_TEAM];
+	iRank = pClient->ps.persistant[PERS_RANK];
+
+	memset (pClient->ps.persistant, 0, sizeof(pClient->ps.persistant));
+
+	pClient->ps.persistant[PERS_TEAM] = iTeam;
+	pClient->ps.persistant[PERS_RANK] = iRank; /* Prevents lead change sounds. */
+
+	memset (pClient->ps.stats, 0, sizeof(pClient->ps.stats));
+	pEntity->health = pClient->ps.stats[STAT_HEALTH] = 100; /* Ensures spectators can move. */
+
+	if (pClient->hook)
+	{
+		Weapon_HookFree(pClient->hook);
+	}
+
+	/* Respawn the client. */
+	if (pClient->sess.sessionTeam == TEAM_SPECTATOR)
+	{
+		StopFollowing(pEntity);
+
+		pClient->sess.spectatorClient	= 0;
+		pClient->sess.spectatorState	= SPECTATOR_FREE;
+	}
+	else
+	{
+		ClientSpawn(pEntity);
+	}
+}
+
+/** Iterates through the entity list and returning each entity to its original state. */
+static void LQ3A_ResetEntities(void)
+{
+	gentity_t *pEntity;
+
+	for (pEntity=g_entities; pEntity<&g_entities[level.num_entities]; pEntity++)
+	{
+		if (!pEntity->inuse)
+		{
+			continue; /* Unused entity slot. */
+		}
+
+		if (pEntity->client)
+		{
+			LQ3A_ResetClient(pEntity);
+			continue;
+		}
+
+		/* Reset movers (lifts, doors, buttons etc). */
+		if (pEntity->moverState)
+		{
+			SetMoverState(pEntity, MOVER_POS1, level.time);
+		}
+
+		else if (pEntity->item)
+		{
+			/* Only spawn the master item in spawn queues. */
+			if (pEntity->team && (pEntity != pEntity->teammaster))
+			{
+				pEntity->r.svFlags |= SVF_NOCLIENT;
+				pEntity->s.eFlags |= EF_NODRAW;
+				pEntity->r.contents = 0;
+				pEntity->nextthink = 0;
+			}
+
+			/* Flags. */
+			else if (pEntity->item->giType == IT_TEAM)
+			{
+				if (pEntity->item->giTag == PW_REDFLAG)
+				{
+					Team_ResetFlag(TEAM_RED);
+				}
+				else if (pEntity->item->giTag == PW_BLUEFLAG)
+				{
+					Team_ResetFlag(TEAM_BLUE);
+				}
+				else if (pEntity->item->giTag == PW_NEUTRALFLAG)
+				{
+					Team_ResetFlag(TEAM_FREE);
+				}
+			}
+
+			/* Remove powerups for now and spawn them back in later. */
+			else if (pEntity->item->giType == IT_POWERUP)
+			{
+				pEntity->r.svFlags |= SVF_NOCLIENT;
+				pEntity->s.eFlags |= EF_NODRAW;
+				pEntity->r.contents = 0;
+				pEntity->nextthink = level.time + (45 + crandom() * 15) * 1000;
+				pEntity->think = RespawnItem;
+			}
+
+			/* Dropped items. */
+			else if (pEntity->flags & FL_DROPPED_ITEM)
+			{
+				G_FreeEntity(pEntity);
+			}
+
+			/* Respawn unspawned items. We mirror the delay used in
+				LQ3A_UpdateSpawnItemsFromShortItem() here for consistency. */
+			else if (pEntity->s.eFlags & EF_NODRAW)
+			{
+				pEntity->nextthink = level.time + 1000;
+				pEntity->think = RespawnItem;
+			}
+		}
+
+		/* Remove projectiles and dead bodies part of the body queue. */
+		else if (pEntity->s.weapon || (pEntity->r.contents == CONTENTS_CORPSE))
+		{
+			G_FreeEntity(pEntity);
+		}
+	}
+
+	CalculateRanks();
+}
+
+/** Restarts the map by resetting everything back to its original state. This avoids the
+	need to reload the client module, it also looks nicer when the map rotation system
+	executes a config with a map restart. */
+void LQ3A_RestartMap(float fWarmUp)
+{
+	pchar pMusic;
+
+	level.spawning	= qtrue;
+	level.restarted	= qtrue;
+
+	level.startTime = level.time;
+	trap_SetConfigstring(CS_LEVEL_START_TIME, va("%i", level.startTime));
+
+	level.intermissiontime = 0;
+	level.readyToExit = qfalse;
+	level.exitTime = 0;
+
+	LQ3A_ResetEntities();
+
+	if (fWarmUp == 0)
+	{
+		level.warmupTime = 0;
+	}
+	else
+	{
+		level.warmupTime = level.time + (fWarmUp * 1000);
+	}
+
+	trap_SetConfigstring(CS_INTERMISSION, "0");
+
+	/* Reset background music. */
+	G_SpawnString("music", "", &pMusic);
+	trap_SetConfigstring(CS_MUSIC, pMusic);
+
+	trap_SetConfigstring(CS_WARMUP, va("%i", level.time));
+
+	/* Inform clients so they clean up the local entities. */
+	LQ3A_SendServerCommand(NULL, "map_restart %i", (fWarmUp == 0.0f) ? 0 : 1);
+
+	level.restarted	= qfalse;
+	level.spawning	= qfalse;
+}
+
+/** Returns the number of spawn spots on the current map. */
+int LQ3A_GetSpawnSpotCount(void)
+{
+	gentity_t	*pEntity;
+	int			iCount;
+
+	iCount = 0;
+
+	for (pEntity=g_entities; pEntity<&g_entities[level.num_entities]; pEntity++)
+	{
+		if (!pEntity->inuse)
+		{
+			continue;
+		}
+
+		if (Q_stricmp(pEntity->classname, "info_player_deathmatch") == 0)
+		{
+			iCount++;
+		}
+	}
+
+	return iCount;
 }
 
 /** Returns the number of vacant playing slots. */
@@ -991,6 +1193,7 @@ void LQ3A_CompleteClientMoveToSpectatorTeam(gentity_t *pEntity)
 	trap_LinkEntity(pEntity);
 }
 
+/** Places start ammo into the given clients inventory. */
 static void LQ3A_GiveClientInitialAmmo(gclient_t *pClient)
 {
 	int i, iMax;
@@ -1023,6 +1226,7 @@ static void LQ3A_GiveClientInitialAmmo(gclient_t *pClient)
 	}
 }
 
+/** Places start powerups into the given clients inventory. */
 static void LQ3A_GiveClientInitialPowerups(gclient_t *pClient)
 {
 	int i, time;
@@ -1050,6 +1254,7 @@ static void LQ3A_GiveClientInitialPowerups(gclient_t *pClient)
 	}
 }
 
+/** Places start holdables into the given clients inventory. */
 static void LQ3A_GiveClientInitialHoldables(gclient_t *pClient)
 {
 	uint i;
@@ -1071,6 +1276,7 @@ static void LQ3A_GiveClientInitialHoldables(gclient_t *pClient)
 	}
 }
 
+/** Places start items into the given clients inventory. */
 void LQ3A_GiveClientInititalInventory(gclient_t *pClient)
 {
 	assert(pClient);
@@ -1466,6 +1672,11 @@ qboolean LQ3A_FileExists(pcchar pFileName)
 {
 	fileHandle_t hFile;
 
+	if (*pFileName == 0)
+	{
+		return qfalse;
+	}
+
 	trap_FS_FOpenFile(pFileName, &hFile, FS_READ);
 
 	if (!hFile)
@@ -1621,15 +1832,18 @@ skip_parse_arg:
 
 		case LQ3A_MAPLIST_ARG_CONFIG:
 
-			/* Ensure the configuration file exists before adding it. */
-			if (LQ3A_FileExists(cArg))
+			if (*cArg != 0)
 			{
-				Q_strncpyz(pEntry->cConfig, cArg, MAX_QPATH);
-			}
-			else
-			{
-				G_Printf("Configuration file \"%s\" for map \"%s\" could not be found, config ignored.\n",
-					cArg, pEntry->cName);
+				/* Ensure the configuration file exists before adding it. */
+				if (LQ3A_FileExists(cArg))
+				{
+					Q_strncpyz(pEntry->cConfig, cArg, MAX_QPATH);
+				}
+				else
+				{
+					G_Printf("Configuration file \"%s\" for map \"%s\" could not be found, config ignored.\n",
+						cArg, pEntry->cName);
+				}
 			}
 
 			break;
@@ -1678,6 +1892,12 @@ static qboolean LQ3A_RestoreMapListState(void)
 	LQ3A_ParseArg(&pBuffer, LQ3A_PARSE_IN_SIZE(cBuffer, pBuffer), cArg, sizeof(cArg), &uLen);
 
 	if (!uLen)
+	{
+		return qfalse;
+	}
+
+	/* Reload the map list if the g_mapList cvar has changed. */
+	if (Q_stricmp(cArg, g_mapList.string) != 0)
 	{
 		return qfalse;
 	}
@@ -1850,6 +2070,7 @@ static void LQ3A_GetMapListPickList(plq3a_maplist_picklist_t pPickList, qboolean
 	LQ3A_GetMapListPickList(pPickList, (iRecursionCount >= 3) ? qtrue : bIgnoreCounts, ++iRecursionCount);
 }
 
+/** Selects a map from the given picklist. */
 static int LQ3A_PickMapFromPickList(plq3a_maplist_picklist_t pPickList)
 {
 	int i, iChoice;
@@ -1916,7 +2137,7 @@ void LQ3A_SelectNextMap(void)
 	if (!g_mapListIgnoreConfigs.integer && *pMap->cConfig)
 	{
 		/* Add a custom configuration to the nextmap command when one is provided. */
-		iLen = Com_sprintf(cNextMap, sizeof(cNextMap), "exec \"%s\";", pMap->cConfig);
+		iLen = Com_sprintf(cNextMap, sizeof(cNextMap), "exec \"%s\"", pMap->cConfig);
 	}
 	else
 	{
@@ -1926,12 +2147,16 @@ void LQ3A_SelectNextMap(void)
 	if (Q_stricmp(level.cMapName, pMap->cName) == 0)
 	{
 		/* Restart rather than reload if the nextmap is the same as the current map. */
-		Com_sprintf(cNextMap+iLen, sizeof(cNextMap)-iLen, "map_restart 0\n");
 		level.MapList.bRestartMap = qtrue;
+	}
+	else if (iLen)
+	{
+		/* Append it to the existing command. */
+		Com_sprintf(cNextMap+iLen, sizeof(cNextMap)-iLen, ";map %s", pMap->cName);
 	}
 	else
 	{
-		Com_sprintf(cNextMap+iLen, sizeof(cNextMap)-iLen, "map %s", pMap->cName);
+		Com_sprintf(cNextMap, sizeof(cNextMap), "map %s", pMap->cName);
 	}
 
 	trap_Cvar_Set("nextmap", cNextMap);
@@ -2099,8 +2324,8 @@ static void LQ3A_SetHighScoreConfigString(void)
 			Instead, we use flags to inform the client as to whats present in each entry.
 
 			From a server level we always reference the date, even in qvm's. The client is left to determine if the
-			date column has data across all entries or not. This allows us to provide highscores mixed scores set by
-			both a dll and qvm games. */
+			date column has data across all entries or not. This allows us to provide high scores set by a mixture
+			of both dll and qvm games. */
 		pBuffer += Com_sprintf(pBuffer, sizeof(cBuffer)-(pBuffer-cBuffer),
 			" \"%s\" %i %i %i %i %i %i %i %i %i %i %i %s %i",
 				pEntry->cGamerTag,
@@ -2550,4 +2775,34 @@ void LQ3A_InitGame(void)
 	/* Cache the start inventory parse result.
 		There is no need to update CS_ITEMS here as it's done later on in G_InitGame(). */
 	LQ3A_ParseStartItemsCvar(qfalse);
+}
+
+/** Executes the "exportconfig" server command. */
+void LQ3A_SvCmdExportConfig(void)
+{
+	char		cFileName[MAX_TOKEN_CHARS];
+	char		cDefaults[MAX_TOKEN_CHARS];
+	qboolean	bDefaults;
+
+	if (trap_Argc() < 2)
+	{
+		G_Printf("Usage: exportconfig <filename> <defaults>\n");
+		return;
+	}
+
+	trap_Argv(1, cFileName, sizeof(cFileName));
+	Com_sprintf(cFileName, sizeof(cFileName), "configs/%s", cFileName);
+
+	if (trap_Argc() > 2)
+	{
+		trap_Argv(2, cDefaults, sizeof(cDefaults));
+		bDefaults = atoi(cDefaults) ? qtrue : qfalse;
+	}
+	else
+	{
+		bDefaults = qfalse;
+	}
+
+	LQ3A_WriteCvarTableToFile(cFileName, bDefaults);
+	G_Printf("Exported config to \"%s\"\n", cFileName);
 }

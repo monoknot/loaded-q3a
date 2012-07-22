@@ -432,7 +432,9 @@ void	Svcmd_ForceTeam_f( void ) {
 
 	// set the team
 	trap_Argv( 2, str, sizeof( str ) );
-	SetTeam( &g_entities[cl - level.clients], str );
+
+	/* LQ3A */
+	SetTeam(&g_entities[cl - level.clients], str, qtrue);
 }
 
 char	*ConcatArgs( int start );
@@ -493,6 +495,13 @@ qboolean	ConsoleCommand( void ) {
 		return qtrue;
 	}
 
+	/* LQ3A */
+	if (Q_stricmp(cmd, "exportconfig") == 0)
+	{
+		LQ3A_SvCmdExportConfig();
+		return qtrue;
+	}
+
 	if (g_dedicated.integer) {
 		if (Q_stricmp (cmd, "say") == 0) {
 			trap_SendServerCommand( -1, va("print \"server: %s\"", ConcatArgs(1) ) );
@@ -505,4 +514,3 @@ qboolean	ConsoleCommand( void ) {
 
 	return qfalse;
 }
-

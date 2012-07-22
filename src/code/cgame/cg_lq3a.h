@@ -31,7 +31,7 @@
 #define LQ3A_MOTD_DELAY			600		/**< Delay before showing the motd after request in milliseconds. */
 #define LQ3A_MOTD_DISPLAY_TIME	5500	/**< Duration of message of the day layout in milliseconds. */
 
-/** Information tag added to the end of the motd. */
+/** Information tag append to the server motd. */
 #define LQ3A_LAYOUT_TAG				"\n\n^3Loaded Q3A " LQ3A_VERSION "\nhttp://www.kevin-fell.co.uk/"
 
 /** Sizeof config string variables which include the info tag. */
@@ -41,17 +41,17 @@
 enum
 {
 	LQ3A_LAYOUT_NONE,
-	LQ3A_LAYOUT_SCOREBOARD,
+	LQ3A_LAYOUT_SCOREBOARD,		/**< Scoreboard. */
 	LQ3A_LAYOUT_CENTERSTRING,	/**< Replaces the CG_CenterString() function. */
-	LQ3A_LAYOUT_MOTD,
-	LQ3A_LAYOUT_HIGHSCORES
+	LQ3A_LAYOUT_MOTD,			/**< Enhanced "Message of the day". */
+	LQ3A_LAYOUT_HIGHSCORES		/**< High score table. */
 };
 
 typedef struct
 {
-	int	iType;
-	int	iStartTime;
-	int	iEndTime;
+	int	iType;			/**< Type of layout. See LQ3A_LAYOUT_* definitions. */
+	int	iStartTime;		/**< cg.time the layout should begin to fade into the screen. */
+	int	iEndTime;		/**< cg.time the layout should no longer appear on the screen and have completely faded out. */
 	int	iDuration;
 
 } lq3a_layout_t;
@@ -86,6 +86,7 @@ extern int		g_pm_jumpVelocity;					/**< bg_pmove.c */
 extern void		LQ3A_ParseLoadedConfigString(pchar pString, uint uSize);
 extern void		LQ3A_ParseLimitsConfigString(pchar pString, uint uSize);
 extern void		LQ3A_ParseItemsConfigString(pchar pString);
+extern int		LQ3A_GetPlayingClientCount(void);
 extern void		LQ3A_BlendScreen(void);
 extern qboolean	LQ3A_FadeInColor(vec4_t *vIn, int iStartTime, int iEndTime);
 extern uint		LQ3A_GetLineCount(pchar pBuffer);

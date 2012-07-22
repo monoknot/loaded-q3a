@@ -29,9 +29,9 @@
 #define __BG_LQ3A_H__
 
 #ifndef MISSIONPACK
-#define LQ3A_VERSION "2.0 RC1"
+#define LQ3A_VERSION "2.0 RC2"
 #else
-#define LQ3A_VERSION "2.0 TA RC1"
+#define LQ3A_VERSION "2.0 TA RC2"
 #endif /* !MISSIONPACK */
 
 /* Type definitions. */
@@ -41,22 +41,26 @@ typedef unsigned int	uint,		*puint;
 typedef char			*pchar,		**ppchar;
 typedef const char		*pcchar,	**ppcchar;
 
-#define LQ3A_PARSE_IN_SIZE(s,p)		(s+sizeof(s)-p)
-#define LQ3A_PARSE_IN_SIZE2(s,l,p)	(s+l-p)
-
+#define LQ3A_PARSE_IN_SIZE(s,p)		(s+sizeof(s)-p)	/**< Size in bytes remaining in the buffer.
+															Uses sizeof() to determine the total size of the given buffer. */
+#define LQ3A_PARSE_IN_SIZE2(s,l,p)	(s+l-p)			/**< Size in bytes remaining in the buffer.
+															The total size of the buffer needs to be provided,
+															to be used when sizeof() cannot be used by the calling function. */
+															
 /* LQ3A_Parse() flags. */
-#define LQ3A_PARSE_COMMENTS				0x01
-#define LQ3A_PARSE_BREAK_ON_CRLF		0x02
-#define LQ3A_PARSE_BREAK_ON_EMPTY		0x04
-#define LQ3A_PARSE_BREAK_ON_DELIMITER	0x08
+#define LQ3A_PARSE_COMMENTS				0x01	/**< Parse over single and multiline comments. */
+#define LQ3A_PARSE_BREAK_ON_CRLF		0x02	/**< Stop parsing when the parser has reached the end of the line. */
+#define LQ3A_PARSE_BREAK_ON_EMPTY		0x04	/**< Stop parsing when the parser encounters an empty set of quotation marks. */
+#define LQ3A_PARSE_BREAK_ON_DELIMITER	0x08	/**< Stop parsing when the parser encounters the current delimiter character. */
 
+/** Returns codes for LQ3A_Parse(). */
 enum
 {
-	LQ3A_PARSE_R_OK,
-	LQ3A_PARSE_R_COMPLETE,
-	LQ3A_PARSE_R_CRLF,
-	LQ3A_PARSE_R_EMPTY,
-	LQ3A_PARSE_R_DELIMITER
+	LQ3A_PARSE_R_OK,		/**< Everything went ok. */
+	LQ3A_PARSE_R_COMPLETE,	/**< Parsing is complete, no more calls please. */
+	LQ3A_PARSE_R_CRLF,		/**< Parsing stopped after encountering either a carriage return or line feed character. See LQ3A_PARSE_BREAK_ON_CRLF. */
+	LQ3A_PARSE_R_EMPTY,		/**< Parsing stopped after encountering an empty set of quotation marks. See LQ3A_PARSE_BREAK_ON_EMPTY. */
+	LQ3A_PARSE_R_DELIMITER	/**< Parsing stopped after encountering the current delimiter character. See LQ3A_PARSE_BREAK_ON_DELIMITER. */
 };
 
 /** Calculates array size. */
@@ -103,12 +107,12 @@ typedef enum
 
 } lq3a_follow_type_t;
 
-#define LQ3A_MAX_HIGHSCORE_ENTRIES	10
+#define LQ3A_MAX_HIGHSCORE_ENTRIES	10	/**< Maximum number of records to store per map. */
 #define LQ3A_MAX_DATE				10	/**< Maximum size in bytes of a date string, format "dd/mm/yyyy". */
 
 /* High score entry flags. */
-#define LQ3A_HSEF_BOT	0x01
-#define LQ3A_HSEF_DATE	0x02
+#define LQ3A_HSEF_BOT	0x01	/**< The given entry was set by a non-human player. */
+#define LQ3A_HSEF_DATE	0x02	/**< The given entry contains a date parameter. */
 
 /** This structure describes a high score entry. The structure is saved to the high score
 	file in the order they appear in the structure in little endian format. */
@@ -130,7 +134,7 @@ typedef struct
 
 	/* ITEMS BELOW THIS LINE ARE NOT SAVED TO FILE. */
 
-	int		iClient;
+	int		iClient;				/**< Client number within the current game, used to highlight new scores at the intermission. */
 
 } lq3a_highscore_entry_t, *plq3a_highscore_entry_t;
 

@@ -373,11 +373,20 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd ) {
 	{
 		if (g_gametype.integer >= GT_TEAM)
 		{
-			client->sess.sessionTeam = PickTeam(-1);
+			switch (PickTeam(-1))
+			{
+			case TEAM_RED:
+				SetTeam(ent, "r", qtrue);
+				break;
+			default:
+//			case TEAM_BLUE:
+				SetTeam(ent, "b", qtrue);
+				break;
+			}
 		}
 		else if (LQ3A_GetVacantPlayerSlots())
 		{
-			SetTeam(ent, "f");
+			SetTeam(ent, "f", qtrue);
 		}
 		else
 		{

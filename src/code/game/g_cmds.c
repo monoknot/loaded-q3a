@@ -530,7 +530,8 @@ void BroadcastTeamChange( gclient_t *client, int oldTeam )
 SetTeam
 =================
 */
-void SetTeam( gentity_t *ent, char *s ) {
+/* LQ3A: Added bBroadcast parameter to allow the calling function to suppress the change. */
+void SetTeam( gentity_t *ent, char *s, qboolean bBroadcast) {
 	/* LQ3A */
 	team_t				team, oldTeam;
 
@@ -718,15 +719,25 @@ void SetTeam( gentity_t *ent, char *s ) {
 		CheckTeamLeader( oldTeam );
 	}
 
-	BroadcastTeamChange( client, oldTeam );
+	/* LQ3A: Broadcast the change when instructed to do so. */
+	if (bBroadcast)
+	{
+		BroadcastTeamChange(client, oldTeam);
+	}
 
 	// get and distribute relevent paramters
 	ClientUserinfoChanged( clientNum );
 
-	/* LQ3A: Spawn the client into the game. */
+	/* LQ3A */
 	if (team != TEAM_SPECTATOR)
 	{
+		/* Spawn the client into the game. */
 		ClientBegin(clientNum);
+	}
+	else
+	{
+		/* Update the cached scores. */
+		CalculateRanks();
 	}
 }
 
@@ -831,7 +842,8 @@ void Cmd_Team_f( gentity_t *ent ) {
 
 	trap_Argv( 1, s, sizeof( s ) );
 
-	SetTeam( ent, s );
+	/* LQ3A */
+	SetTeam(ent, s, qtrue);
 
 	ent->client->switchTeamTime = level.time + 5000;
 }
@@ -880,7 +892,9 @@ void Cmd_Follow_f(gentity_t *ent, lq3a_follow_type_t eType) {
 
 	// first set them to spectator
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
-		SetTeam( ent, "spectator" );
+
+		/* LQ3A */
+		SetTeam(ent, "spectator", qtrue);
 	}
 
 	/* LQ3A */
@@ -905,7 +919,7 @@ void Cmd_Follow_f(gentity_t *ent, lq3a_follow_type_t eType) {
 Cmd_FollowCycle_f
 =================
 */
-/* LQ3A: Added eType variable. See LQ3A_FOLLOW_TYPE_* definitions for usage. */
+/* LQ3A: Added eType parameter. See LQ3A_FOLLOW_TYPE_* definitions for usage. */
 void Cmd_FollowCycle_f( gentity_t *ent, int dir, lq3a_follow_type_t eType) {
 	int		clientnum;
 	int		original;
@@ -925,7 +939,9 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir, lq3a_follow_type_t eType) {
 
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
-		SetTeam( ent, "spectator" );
+
+		/* LQ3A */
+		SetTeam(ent, "spectator", qtrue);
 	}
 
 	if ( dir != 1 && dir != -1 ) {

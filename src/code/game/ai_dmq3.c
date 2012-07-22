@@ -1747,7 +1747,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 	//ammo
 
 	/* LQ3A: Ammo count can be -1 for unlimited ammo.
-		Bots dont understand this so ensure they know they're not sort of rounds. */
+		Bots don't understand this so ensure they know they're not sort of rounds. */
 	bs->inventory[INVENTORY_SHELLS]			= (bs->cur_ps.ammo[WP_SHOTGUN] == -1) ? 999 : bs->cur_ps.ammo[WP_SHOTGUN];
 	bs->inventory[INVENTORY_BULLETS]		= (bs->cur_ps.ammo[WP_MACHINEGUN] == -1) ? 999 : bs->cur_ps.ammo[WP_MACHINEGUN];
 	bs->inventory[INVENTORY_GRENADES]		= (bs->cur_ps.ammo[WP_GRENADE_LAUNCHER] == -1) ? 999 : bs->cur_ps.ammo[WP_GRENADE_LAUNCHER];
@@ -4907,7 +4907,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 			else*/
 #ifdef MISSIONPACK
 			if (!strcmp(buf, "sound/items/kamikazerespawn.wav" )) {
-				//the kamikaze respawned so dont avoid it
+				//the kamikaze respawned so don't avoid it
 				BotDontAvoid(bs, "Kamikaze");
 			}
 			else

@@ -2076,9 +2076,13 @@ static void CG_DrawSpectator(void) {
 
 	CG_DrawBigString(320 - 9 * 8, 420, "SPECTATOR", 1.0f);
 
-	if (cgs.gametype == GT_TOURNAMENT)
+	if (((cgs.gametype == GT_TOURNAMENT) && (cg.iPlayingClientCount == 2)) ||
+		((cgs.iMaxGameClients > 0) && (cg.iPlayingClientCount == cgs.iMaxGameClients)))
 	{
-		CG_DrawStringExt2(320, 446, "Waiting to play", cColor, qfalse, qtrue,
+		/* Waiting to play when there are no player slots available. */
+		Com_sprintf(cMessage, sizeof(cMessage), "Waiting to play\nPress %sUSE%s to follow", S_COLOR_BLUE, S_COLOR_WHITE);
+
+		CG_DrawStringExt2(320, 446, cMessage, cColor, qfalse, qtrue,
 			TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0, UI_CENTER);
 	}
 	else if (cgs.gametype >= GT_TEAM)
@@ -2268,14 +2272,26 @@ static qboolean CG_DrawFollow( void ) {
 	Com_sprintf(cMessage, sizeof(cMessage), "FOLLOWING %s", cgs.clientinfo[cg.snap->ps.clientNum].name);
 	CG_DrawStringExt2(320, 420, Q_strupr(cMessage), colorWhite, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_WIDTH, 0, UI_CENTER);
 
-	Com_sprintf(cMessage, sizeof(cMessage), "Press %sFIRE%s to join, %sMOVEUP%s or %sMOVEDOWN%s to\n change your target or press %sUSE%s to free float",
-		S_COLOR_BLUE, S_COLOR_WHITE,
-		S_COLOR_BLUE, S_COLOR_WHITE,
-		S_COLOR_BLUE, S_COLOR_WHITE,
-		S_COLOR_BLUE, S_COLOR_WHITE);
+	/* Include the "Press FIRE to join" message only when there is space for us to play. */
+	if (((cgs.gametype == GT_TOURNAMENT) && (cg.iPlayingClientCount < 2)) ||
+			(cg.iPlayingClientCount <= cgs.iMaxGameClients))
+	{
+		Com_sprintf(cMessage, sizeof(cMessage), "Press %sFIRE%s to join, %sMOVEUP%s or %sMOVEDOWN%s to\n change your target or press %sUSE%s to free float",
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE);
+	}
+	else
+	{
+		Com_sprintf(cMessage, sizeof(cMessage), "Press %sMOVEUP%s or %sMOVEDOWN%s to change your target\nor press %sUSE%s to free float",
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE,
+			S_COLOR_BLUE, S_COLOR_WHITE);
+	}
 
 	CG_DrawStringExt2(320, 446, cMessage, colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0, UI_CENTER);
-
 	return qtrue;
 }
 
@@ -2397,13 +2413,20 @@ static void CG_DrawWarmup( void ) {
 			CG_Text_Paint(320 - w / 2, 60, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
 			w = CG_DrawStrlen( s );
-			if ( w > 640 / GIANT_WIDTH ) {
+
+			/* LQ3A: Changed text size from GIANTCHAR_WIDTH to BIGCHAR_WIDTH. */
+			if (w > 640 / BIGCHAR_WIDTH)
+			{
 				cw = 640 / w;
-			} else {
-				cw = GIANT_WIDTH;
 			}
-			CG_DrawStringExt( 320 - w * cw/2, 20,s, colorWhite, 
-					qfalse, qtrue, cw, (int)(cw * 1.5f), 0 );
+			else
+			{
+				cw = BIGCHAR_WIDTH;
+			}
+
+			/* LQ3A: Moved the message down to prevent clipping the latest console entries. */
+			CG_DrawStringExt(320 - w * cw/2, 40,s, colorWhite, 
+					qfalse, qtrue, cw, (int)(cw * 1.5f), 0);
 #endif
 		}
 	} else {
@@ -2429,11 +2452,17 @@ static void CG_DrawWarmup( void ) {
 		CG_Text_Paint(320 - w / 2, 90, 0.6f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE);
 #else
 		w = CG_DrawStrlen( s );
-		if ( w > 640 / GIANT_WIDTH ) {
+
+		/* LQ3A: Changed text size from GIANTCHAR_WIDTH to BIGCHAR_WIDTH. */
+		if (w > 640 / BIGCHAR_WIDTH)
+		{
 			cw = 640 / w;
-		} else {
-			cw = GIANT_WIDTH;
 		}
+		else
+		{
+			cw = BIGCHAR_WIDTH;
+		}
+
 		CG_DrawStringExt( 320 - w * cw/2, 25,s, colorWhite, 
 				qfalse, qtrue, cw, (int)(cw * 1.1f), 0 );
 #endif
@@ -2619,12 +2648,14 @@ static void CG_Draw2D( void ) {
 	CG_DrawLowerRight();
 #endif
 
-	if ( !CG_DrawFollow() ) {
-		CG_DrawWarmup();
-	}
-
 	/* LQ3A */
 	CG_DrawScoreboard();
+
+	/* LQ3A */
+	if ((cg.iLayout == LQ3A_LAYOUT_NONE) && !CG_DrawFollow())
+	{
+		CG_DrawWarmup();
+	}
 }
 
 

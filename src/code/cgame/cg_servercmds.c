@@ -104,7 +104,6 @@ static void CG_ParseScores( void ) {
 #ifdef MISSIONPACK
 	CG_SetScoreSelection(NULL);
 #endif
-
 }
 
 /*
@@ -153,6 +152,9 @@ void CG_ParseServerinfo( void ) {
 	cgs.capturelimit = atoi( Info_ValueForKey( info, "capturelimit" ) );
 	cgs.timelimit = atoi( Info_ValueForKey( info, "timelimit" ) );
 	cgs.maxclients = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+
+	/* LQ3A */
+	cgs.iMaxGameClients = atoi(Info_ValueForKey(info, "g_maxGameClients"));
 
 	/* LQ3A: Keep a copy of the mapname without the path and file extension. */
 	Q_strncpyz(cgs.cMap, Info_ValueForKey(info, "mapname"), sizeof(cgs.cMap));
@@ -489,7 +491,8 @@ static void CG_MapRestart( void ) {
 	cg.intermissionStarted = qfalse;
 
 	/* LQ3A */
-	cg.bHighScoreAnnounced = qfalse;
+	cg.iIntermissionStartTime	= 0;
+	cg.bHighScoreAnnounced		= qfalse;
 
 	/* LQ3A: Dont carry over awards. */
 	cg.rewardStack = 0;

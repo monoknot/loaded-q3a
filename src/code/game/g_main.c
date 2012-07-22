@@ -720,8 +720,6 @@ void LQ3A_WriteCvarTableToFile(pcchar pFileName, qboolean bDefaultValues)
 	}
 
 	trap_FS_FCloseFile(hFile);
-
-	G_Printf("Cvar table written to %s.\n", pFileName);
 }
 
 /** LQ3A: Searches the cvar table for a cvar with the given name and returns a reference to it.
@@ -971,6 +969,13 @@ void G_UpdateCvars( void ) {
 	if (remapped) {
 		G_RemapTeamShaders();
 	}
+
+	/* LQ3A: Communicate CS_ITEMS changes to all clients. */
+	if (level.bUpdateRegisteredItems)
+	{
+		SaveRegisteredItems();
+		level.bUpdateRegisteredItems = qfalse;
+	}
 }
 
 /*
@@ -1204,7 +1209,8 @@ void AddTournamentPlayer( void ) {
 	level.warmupTime = -1;
 
 	// set them to free-for-all team
-	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
+	/* LQ3A */
+	SetTeam(&g_entities[ nextInLine - level.clients ], "f", qtrue);
 }
 
 /*
@@ -1227,8 +1233,8 @@ void RemoveTournamentLoser( void ) {
 		return;
 	}
 
-	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	/* LQ3A: Make them a spectator but don't broadcast the change. */
+	SetTeam(&g_entities[ clientNum ], "s", qfalse);
 }
 
 /*
@@ -1249,8 +1255,8 @@ void RemoveTournamentWinner( void ) {
 		return;
 	}
 
-	// make them a spectator
-	SetTeam( &g_entities[ clientNum ], "s" );
+	/* LQ3A: Make them a spectator but don't broadcast the change. */
+	SetTeam(&g_entities[ clientNum ], "s", qfalse);
 }
 
 /*
@@ -1630,14 +1636,20 @@ void ExitLevel (void) {
 	// if we are running a tournament map, kick the loser to spectator status,
 	// which will automatically grab the next spectator and restart
 	if ( g_gametype.integer == GT_TOURNAMENT  ) {
-		if ( !level.restarted ) {
-			RemoveTournamentLoser();
-			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-			level.restarted = qtrue;
-			level.changemap = NULL;
-			level.intermissiontime = 0;
-		}
-		return;	
+
+		/* LQ3A: Remove the loser, fall through to restart or change the map. */
+		RemoveTournamentLoser();
+	}
+
+	/* LQ3A: Perform a fast restart if we are continuing the game on the same map. */
+	if (level.MapList.bRestartMap)
+	{
+		LQ3A_SaveMapListState();
+		trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap\n");
+		LQ3A_RestartMap(0.0f);
+
+		level.MapList.bRestartMap = qfalse;
+		return;
 	}
 
 	/* LQ3A: Suppress G_RunFrame() until the restart command has been issued. */
@@ -1840,7 +1852,7 @@ void CheckIntermissionExit( void ) {
 		return;
 	}
 
-	/* LQ3A: Dont allow the intermission to last longer than half again. */
+	/* LQ3A: don't allow the intermission to last longer than half again. */
 	if (level.time < level.intermissiontime + ((g_intermissionTime.value + (g_intermissionTime.value / 2)) * 1000))
 	{
 		// if nobody wants to go, clear timer
@@ -2064,10 +2076,10 @@ void CheckTournament( void ) {
 
 		// if the warmup time has counted down, restart
 		if ( level.time > level.warmupTime ) {
-			level.warmupTime += 10000;
-			trap_Cvar_Set( "g_restarted", "1" );
-			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-			level.restarted = qtrue;
+
+			/* LQ3A: Reset the map. */
+			LQ3A_RestartMap(0.0f);
+
 			return;
 		}
 	} else if ( g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0 ) {
@@ -2114,10 +2126,10 @@ void CheckTournament( void ) {
 
 		// if the warmup time has counted down, restart
 		if ( level.time > level.warmupTime ) {
-			level.warmupTime += 10000;
-			trap_Cvar_Set( "g_restarted", "1" );
-			trap_SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-			level.restarted = qtrue;
+
+			/* LQ3A: Reset the map. */
+			LQ3A_RestartMap(0.0f);
+
 			return;
 		}
 	}

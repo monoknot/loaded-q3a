@@ -539,10 +539,13 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	if ( cg.mapRestart ) {
 		CG_Respawn();
 		cg.mapRestart = qfalse;
-
+		
 		/* LQ3A: On map restarts the config strings
 			are not resent so we have to manually bring the motd up. */
-		LQ3A_SetLayout(LQ3A_LAYOUT_MOTD, LQ3A_MOTD_DELAY, qtrue);
+		if (cg.warmup)
+		{
+			LQ3A_SetLayout(LQ3A_LAYOUT_MOTD, LQ3A_MOTD_DELAY, qtrue);
+		}
 	}
 
 	if ( cg.snap->ps.pm_type != PM_INTERMISSION 

@@ -985,7 +985,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 	/* LQ3A: We need to identify bots from the start to ensure this is set now.
 		G_AddBot() actually sets this before calling this function,
-		reconnecting bots how ever dont have this preset. */
+		reconnecting bots how ever don't have this preset. */
 	if (isBot)
 	{
 		ent->r.svFlags |= SVF_BOT;

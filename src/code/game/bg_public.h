@@ -34,11 +34,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 /* LQ3A */
 #include "bg_lq3a.h"
 
-/* LQ3A: It's important that we dont mix the standard and Team Arena builds. */
+/* LQ3A: It's important that we don't mix the standard and Team Arena builds. */
 #ifndef MISSIONPACK
-#define	GAME_VERSION	"lq3a-2"
+#define	GAME_VERSION	"lq3a-2-rc2n"
 #else
-#define	GAME_VERSION	"lq3a-ta-2"
+#define	GAME_VERSION	"lq3a-ta-2-rc2n"
 #endif /* !MISSIONPACK*/
 
 #define	DEFAULT_GRAVITY		800

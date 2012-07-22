@@ -205,6 +205,38 @@ void LQ3A_ParseItemsConfigString(pchar pString)
 	}
 }
 
+/** Returns the number of playing clients in the current game. */
+int LQ3A_GetPlayingClientCount(void)
+{
+	int i, iCount;
+
+	for (i=0,iCount=0; i<LQ3A_ARRAYSIZE(cgs.clientinfo); i++)
+	{
+		if (!cgs.clientinfo[i].infoValid)
+		{
+			continue; /* Not inuse. */
+		}
+
+		if (cgs.gametype >= GT_TEAM)
+		{
+			/* Count playing clients across all teams in team games. */
+			if ((cgs.clientinfo[i].team == TEAM_RED) || (cgs.clientinfo[i].team == TEAM_BLUE))
+			{
+				iCount++;
+			}
+		}
+		else
+		{
+			if (cgs.clientinfo[i].team == TEAM_FREE)
+			{
+				iCount++;
+			}
+		}
+	}
+
+	return iCount;
+}
+
 /** Applies screen blending when the camera is in solids. */
 void LQ3A_BlendScreen(void)
 {

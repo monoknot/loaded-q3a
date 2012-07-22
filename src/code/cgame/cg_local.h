@@ -549,14 +549,21 @@ typedef struct {
 	int			teamScores[2];
 	score_t		scores[MAX_CLIENTS];
 
+	/* LQ3A */
+	int			iPlayingClientCount;	/**< Number of playing clients. */
+
 	/* LQ3A: We use iLayout to indicate which layout we should display on the screen,
 		since we use the same variable to control all available layout we never have to
 		worry about overlapping other layouts. See LQ3A_LAYOUT_* definitions for available layouts. */
-	qboolean		bShownScoreboardToDeadPerson;
-	int				iLayout;
-	int				iLayoutStartTime;
-	int				iLayoutEndTime;
-	int				iLayoutDuration;
+	qboolean		bShownScoreboardToDeadPerson;	/* qtrue when the scoreboard has been shown to a dead person,
+														layouts can be manipulated by the client as soon as the scoreboard
+														has been forced once. */
+	int				iLayout;						/**< Current layout, see LQ3A_LAYOUT_* definitions. */
+	int				iLayoutStartTime;				/**< level.time the layout should fade into the screen. */
+	int				iLayoutEndTime;					/**< level.time the layout should have faded off the screen. */
+	int				iLayoutDuration;				/**< Time in milliseconds the current layout will remain on the screen
+															for before its swapped with the next layout.
+															Set to iLayoutEndTime - iLayoutStartTime. */
 	vec4_t			fLayoutColor;
 	int				iNextLayout;
 	int				iNextLayoutStartTime;
@@ -570,7 +577,7 @@ typedef struct {
 */
 
 	/* LQ3A */
-	qboolean		bHighScoreAnnounced;
+	qboolean		bHighScoreAnnounced;	/**< qtrue when a new high score set by the local user has been announced. */
 
 	char		killerName[MAX_NAME_LENGTH];
 	char			spectatorList[MAX_STRING_CHARS];		// list of names
@@ -1052,6 +1059,7 @@ typedef struct {
 	char			mapname[MAX_QPATH];
 
 	/* LQ3A */
+	int				iMaxGameClients;	/**< g_maxGameClient cvar value parsed from serverinfo. */
 	char			cMap[MAX_QPATH];	/**< Current mapname minus the path and file extension. */
 
 	char			redTeam[MAX_QPATH];

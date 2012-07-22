@@ -28,14 +28,16 @@
 #ifndef __G_LQ3A_H__
 #define __G_LQ3A_H__
 
-#define LQ3A_SVC_BROADCAST	(-1)
-#define LQ3A_INVALID_HANDLE	(-1)
-#define LQ3A_MAX_FILE_SIZE	8192
-#define LQ3A_MAX_MAPLIST	256
+#define LQ3A_SVC_BROADCAST	(-1)	/**< clientNum parameter for broadcasting commands with trap_SendServerCommand(). */
+#define LQ3A_INVALID_HANDLE	(-1)	/**< Invalid file handle value for files read in with LQ3A_ReadFile(). */
+#define LQ3A_MAX_FILE_SIZE	8192	/**< Maximum allowed file size in bytes of files read by LQ3A. */
+#define LQ3A_MAX_MAPLIST	256		/**< Maximum number of maps supported by the map rotation system. */
 #define LQ3A_MAX_PM_IVALUE	9999	/**< Max integer value of shared player movement variables,
 											limited to prevent overflowing the CS_LQ3A_CONFIG configuration string. */
 #define LQ3A_MAX_PM_FVALUE	9999.0f	/**< Max floating point value of shared player movement variables,
 											limited to prevent overflowing the CS_LQ3A_CONFIG configuration string. */
+
+/** Argument ordering for map list files. */
 enum
 {
 	LQ3A_MAPLIST_ARG_NAME,
@@ -48,7 +50,8 @@ enum
 	NUM_LQ3A_MAPLIST_ARGS
 };
 
-#define LQ3A_MAP_VISITED	0x01
+/** Map entry flags. */
+#define LQ3A_MAP_VISITED	0x01	/**< The map has be used in the current cycle. */
 
 /** This structure describes a map in the maplist. */
 typedef struct
@@ -66,7 +69,7 @@ typedef struct
 {
 	char					cFile[MAX_QPATH];		/**< The filename used to populate the map list,
 															used to ensure the saved state is valid in LQ3A_RestoreMapListState(). */
-	lq3a_maplist_entry_t	Map[LQ3A_MAX_MAPLIST];	/**< Map entries. */
+	lq3a_maplist_entry_t	Map[LQ3A_MAX_MAPLIST];	/**< Array of map entries. */
 	int						iCount;					/**< Number of maps in the map list. */
 	int						iCurrent;				/**< Index of the current map, set to LQ3A_MAPLIST_NOT_IN_ROTATION
 															when the current map is not in the map list.*/
@@ -89,26 +92,26 @@ typedef struct
 /** Value of lq3a_maplist_t::uCurrent when the current map is not in the map list. */
 #define LQ3A_MAP_NOT_IN_LIST	-1
 
-#define LQ3A_HIGHSCORE_IDENT		('L' + ('Q' << 8) + ('3' << 16) + ('H' << 24))
-#define LQ3A_HIGHSCORE_VERSION		0x02U
-#define LQ3A_HIGHSCORE_DIR			"highscores"
+#define LQ3A_HIGHSCORE_IDENT		('L' + ('Q' << 8) + ('3' << 16) + ('H' << 24))	/**< Magic number used to identify high score files. */
+#define LQ3A_HIGHSCORE_VERSION		0x02U				/**< File format version. Increment this if changes have been made which
+																make older formats incompatible with the new format. */
+#define LQ3A_HIGHSCORE_DIR			"highscores"		/**< Directory to which our high score files will be saved in. */
 
 /** Maximum size of g_highScoreTag cvar in bytes. */
 #define LQ3A_MAX_HIGHSCORE_TAG_SIZE	16
 
+/** High score file header. */
 typedef struct
 {
-	uint	uID;
-	uint	uVersion;
-	uint	uCRC32;
-	char	cMapName[MAX_QPATH];
-
-	char	cTag[LQ3A_MAX_HIGHSCORE_TAG_SIZE];
-	int		iTimeLimit;
-	int		iFragLimit;
-	int		iCaptureLimit;
-
-	uint	uCount;
+	uint	uID;								/**< Must equal LQ3A_HIGHSCORE_IDENT. */
+	uint	uVersion;							/**< Must equal LQ3A_HIGHSCORE_VERSION. */
+	uint	uCRC32;								/**< Not used. */
+	char	cMapName[MAX_QPATH];				/**< Mapname without the bsp extension. */
+	char	cTag[LQ3A_MAX_HIGHSCORE_TAG_SIZE];	/**< Value of g_highscoreTag cvar at the time the scores where set. */
+	int		iTimeLimit;							/**< Value of timelimit cvar at the time the scores where set. */
+	int		iFragLimit;							/**< Value of fraglimit cvar at the time the scores where set. */
+	int		iCaptureLimit;						/**< Value of capturelimit cvar at the time the scores where set. */
+	uint	uCount;								/**< Count of score entries in the file.*/
 
 } lq3a_highscore_header_t;
 
@@ -153,9 +156,6 @@ extern void			LQ3A_WriteCvarTableToFile(pcchar pFileName, qboolean bDefaultValue
 extern cvarTable_t	*LQ3A_FindCvarByName(pcchar pName);										/**< g_main.c */
 extern qboolean		LQ3A_GetCvarName(vmCvar_t *pVmCvar, pchar pBuffer, int iSize);			/**< g_main.c */
 extern void			LQ3A_UpdateCvarByName(pcchar pName, qboolean bSurpressTracking);		/**< g_main.c */
-#ifdef _DEBUG
-extern void			LQ3A_DumpCvarTableToFile(pcchar pFileName);
-#endif /* _DEBUG */
 extern qboolean		LQ3A_GameHasLimits(void);
 extern int			LQ3A_EntityToEntityNum(gentity_t *pEntity);
 extern gentity_t	*LQ3A_ClientToEntity(gclient_t *pClient);
@@ -163,6 +163,8 @@ extern void			LQ3A_SendServerCommand(gentity_t *pEntity, pcchar pFormat, ...);
 extern void			LQ3A_RegisterItems(void);
 extern qboolean		LQ3A_CvarChanged(cvarTable_t *pCvar);
 extern gitem_t		*LQ3A_GetSpawnItem(gentity_t *pEntity, gitem_t *pItem);
+extern void			LQ3A_RestartMap(float fWarmUp);
+extern int			LQ3A_GetSpawnSpotCount(void);
 extern int			LQ3A_GetVacantPlayerSlots(void);
 extern qboolean		LQ3A_CanClientSpectate(gentity_t *pEntity);
 extern void			LQ3A_CompleteClientMoveToSpectatorTeam(gentity_t *pEntity);
@@ -181,5 +183,6 @@ extern void			LQ3A_LoadMotd(void);
 extern void			LQ3A_LoadHighScores(void);
 extern void			LQ3A_SaveHighScores(void);
 extern void			LQ3A_InitGame(void);
+extern void			LQ3A_SvCmdExportConfig(void);
 
 #endif /* __G_LQ3A_H__ */

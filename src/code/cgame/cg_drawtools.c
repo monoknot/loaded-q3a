@@ -190,7 +190,7 @@ void CG_DrawStringExt2( int x, int y, const char *string, const float *setColor,
 		maxChars = 32767; // do them all!
 
 	/* LQ3A: Line offset depends on text size. */
-	iLineOfs = ((charWidth == BIGCHAR_WIDTH) && (charHeight == BIGCHAR_HEIGHT)) ? 5 : 2;
+	iLineOfs = ((charWidth == BIGCHAR_WIDTH) && (charHeight == BIGCHAR_HEIGHT)) ? 5 : 3;
 
 	// draw the drop shadow
 	if (shadow) {

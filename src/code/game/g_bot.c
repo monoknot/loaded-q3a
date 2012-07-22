@@ -320,6 +320,13 @@ int G_RemoveRandomBot( int team ) {
 		if ( team >= 0 && cl->sess.sessionTeam != team ) {
 			continue;
 		}
+
+		/* LQ3A: don't kick the host player when following a bot. */
+		if (cl->pers.localClient)
+		{
+			continue;
+		}
+
 		strcpy(netname, cl->pers.netname);
 		Q_CleanStr(netname);
 		trap_SendConsoleCommand( EXEC_INSERT, va("kick %s\n", netname) );

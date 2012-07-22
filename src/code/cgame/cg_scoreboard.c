@@ -306,11 +306,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 		return qfalse;
 	}
 
-	// don't draw scoreboard during death while warmup up
-	/* LQ3A */
-	if ( cg.warmup) {
-		return qfalse;
-	}
+	/* LQ3A: Scoreboard can now be shown during warmup play. */
 
 	/* LQ3A: LQ3A_DrawLayout() controls the fade. */
 	fadeColor	= cg.fLayoutColor;

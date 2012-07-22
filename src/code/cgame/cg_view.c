@@ -796,6 +796,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
 
+	/* LQ3A */
+	cg.iPlayingClientCount = LQ3A_GetPlayingClientCount();
+
 	// update cg.predictedPlayerState
 	CG_PredictPlayerState();
 
